@@ -4,6 +4,7 @@ import { useState } from "react";
 import styles from "./ShortenerForm.module.css";
 import Button from "../Button/Button";
 import ResultCard from "../ResultCard/ResultCard";
+import { validateUrl } from "../../utils/validation";
 
 export default function ShortenerForm() {
   const [url, setUrl] = useState("");
@@ -14,9 +15,20 @@ export default function ShortenerForm() {
 
   function handleSubmit(event) {
     event.preventDefault();
-    // Basic UI only: validation, short-code generation, and the POST /api/links
-    // call are implemented in later steps (6-8). This handler intentionally
-    // does nothing yet.
+
+    const validation = validateUrl(url);
+
+    if (!validation.isValid) {
+      setStatus("error");
+      setErrorMessage(validation.message);
+      return;
+    }
+
+    // URL valid. Short-code generation and the POST /api/links call are
+    // implemented in Step 7-8 — Step 5 only confirms validation passes.
+    setStatus("idle");
+    setErrorMessage("");
+    console.log("URL validation passed:", url);
   }
 
   const isSubmitDisabled = url.trim() === "" || status === "loading";

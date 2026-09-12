@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { validateUrl } from "../../../utils/validation";
-import { generateShortCode } from "../../../utils/generateCode";
+import { createShortLink } from "../../../services/linkService";
 
 export async function POST(request) {
   let body;
@@ -11,16 +10,15 @@ export async function POST(request) {
               return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
                 }
 
-                  const validation = validateUrl(body?.original_url);
+                  try {
+                      const link = createShortLink({
+                            original_url: body?.original_url,
+                                  custom_alias: body?.custom_alias,
+                                      });
 
-                    if (!validation.isValid) {
-                        return NextResponse.json({ error: validation.message }, { status: 400 });
-                          }
-
-                            // custom_alias sengaja belum diproses (Step 7 hanya generate short-code).
-                              // Menyimpan ke database dan Link Service menyusul di Step 8-9.
-                                const shortCode = generateShortCode();
-
-                                  return NextResponse.json({ short_code: shortCode }, { status: 200 });
-                                  }
-                                  
+                                          return NextResponse.json({ short_code: link.short_code }, { status: 200 });
+                                            } catch (error) {
+                                                return NextResponse.json({ error: error.message }, { status: 400 });
+                                                  }
+                                                  }
+                                                  
